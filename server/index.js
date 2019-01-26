@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyparser = require('body-parser');
-const getReposByUsername = require('../helpers/github.js');
+const helpers = require('../helpers/github.js');
 
 let app = express();
 
@@ -18,6 +18,17 @@ app.post('/repos', function (req, res) {
   // save the repo information in the database
   console.log(`this`, req.body.username);
   
+  var body = helpers.getReposByUsername(req.body.username, (error, response, body) => {
+    if (!error && response.statusCode == 200) {
+      var info = body;
+      console.log(`this here is the body:`, info);
+      res.send(`Ok desu`);
+    }
+  });
+
+  
+  
+
 });
 
 app.get('/repos', function (req, res) {
