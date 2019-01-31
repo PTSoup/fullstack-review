@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyparser = require('body-parser');
 const helpers = require('../helpers/github.js');
+var Repo = require('../database/index.js');
 
 let app = express();
 
@@ -18,16 +19,30 @@ app.post('/repos', function (req, res) {
   // save the repo information in the database
   console.log(`this`, req.body.username);
   
-  var body = helpers.getReposByUsername(req.body.username, (error, response, body) => {
-    if (!error && response.statusCode == 200) {
-      var info = body;
-      console.log(`this here is the body:`, info);
-      res.send(`Ok desu`);
+  helpers.getReposByUsername(req.body.username, (error, response, body) => {
+  
+    let parsed = JSON.parse(body);
+
+    if (parsed[0] !== undefined) {
+      console.log(typeof(body));
+      let newRepo = {
+        id: parsed[0].id, // don't update this
+        login: parsed[0].owner.login,
+        avatar_url: parsed[0].owner.avatar,
+        html_url: parsed[0].owner.html_url,
+        size: parsed[0].size,
+        stargazers_count: parsed[0].stargazers_count,
+        watchers_count: parsed[0].watchers_count,
+        open_issues: parsed[0].open_issues,
+        forks_count: parsed[0].forks_count
+      }
+      console.log(`we found a repo!:`, newRepo)
+      Repo.save(newRepo)
+      res.send(`it worked`);
+    } else {
+      res.send(`it didn't work`);
     }
   });
-
-  
-  
 
 });
 

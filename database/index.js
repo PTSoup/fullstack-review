@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/fetcher');
+mongoose.connect('mongodb://localhost:27017/repos', { useMongoClient: true });
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'))
 db.once('open', function() {
-  //we're connected!
+  console.log('connected');
 })
 
 
@@ -19,15 +19,19 @@ let repoSchema = new mongoose.Schema({
   watchers_count: Number,
   open_issues: Number,
   forks_count: Number
+}, {collection: 'repos'});
 
-});
+let newGitRepo = mongoose.model('Repo', repoSchema);
 
-let Repo = mongoose.model('Repo', repoSchema);
-
-let save = (err, Repo) => {
+let save = (Repo) => {
   // TODO: Your code here
   // This function should save a repo or repos to
   // the MongoDB
+    var newRepo = new newGitRepo(Repo);
+    newRepo.save((err) => {
+      if (err) throw new Error;
+    })
+  
 }
 
 module.exports.save = save;
